@@ -15,11 +15,11 @@ namespace FileCleaner
             this.daysCnt = daysCnt;
         }
 
-        public void DoClean(string dir)
+        public void DoClean(string searchDir)
         {
             try
             {
-                var filtredDirs = Directory.EnumerateDirectories(dir).Where(x => x.IndexOf("!") == -1 
+                var filtredDirs = Directory.EnumerateDirectories(searchDir).Where(x => x.IndexOf("!") == -1 
                     & x.ToUpper().IndexOf("LAY") == -1 & x.ToUpper().IndexOf("PROOF") == -1);
                 foreach (string d in filtredDirs)
                 {
