@@ -6,67 +6,78 @@ namespace FileCleaner
 {
     class Cleaner
     {
-        string daysCnt;
-        private static string[] deleteExt = { ".XML", ".PGP",".XLS", ".XLSX", ".CSV",".DBF",".TXT",".ZIP",".7Z",".PDF"};
-        private static string saveName = $"Raporty/{Program.timeNow.Year.ToString()}{Program.timeNow.Month.ToString().PadLeft(2, '0')}{Program.timeNow.Day.ToString().PadLeft(2, '0')}_raport.txt";
+        string daysCntBack;
+        static DateTime timeNow = DateTime.Now;
+        string[] delExtension;
+        string[] delException;
 
-        public Cleaner(string daysCnt)
+        private static string saveFile = $"{timeNow.Year.ToString()}{timeNow.Month.ToString().PadLeft(2, '0')}{timeNow.Day.ToString().PadLeft(2, '0')}_report.txt";
+
+        public Cleaner(string daysCntBack, string[] delExtension, string[] delException)
         {
-            this.daysCnt = daysCnt;
+            this.daysCntBack = daysCntBack;
+            this.delExtension = delExtension;
+            this.delException = delException;
         }
 
-        public void DoClean(string searchDir)
+        public void DoClean(string searchDir, bool testMode)
         {
             try
             {
-                var filtredDirs = Directory.EnumerateDirectories(searchDir).Where(x => x.IndexOf("!") == -1 
-                    & x.ToUpper().IndexOf("LAY") == -1 & x.ToUpper().IndexOf("PROOF") == -1);
-                foreach (string d in filtredDirs)
+                var filterdDirs = Directory.EnumerateDirectories(searchDir).Where(en => 
+                    !delException.Any(en.ToUpper().Contains));
+
+                foreach (string d in filterdDirs)
                 {
-                    
-                    var filtredFiles = Directory.EnumerateFiles(d).Where(x => x.IndexOf("!") == -1 
-                        & x.ToUpper().IndexOf("RAPORT") == -1 
-                        & x.ToUpper().IndexOf("PROOF") == -1 
-                        & deleteExt.Any(x.ToUpper().EndsWith) 
-                        | System.IO.Path.GetExtension(x).IndexOf(".0") > -1 
-                        | System.IO.Path.GetExtension(x).IndexOf(".1") > -1
-                        | System.IO.Path.GetExtension(x).IndexOf(".2") > -1);
+                    var filtredFiles = Directory.EnumerateFiles(d).Where(en => 
+                        !delException.Any(en.ToUpper().Contains) 
+                        & delExtension.Any(System.IO.Path.GetExtension(en).ToUpper().StartsWith));
                     
                     foreach (string f in filtredFiles)
                     {
-                        // Console.WriteLine($"***{f}");
-                        DateTime fileData = File.GetLastWriteTime(f);
-                        if (Program.timeNow >= fileData.AddDays(Convert.ToInt32(this.daysCnt)))
+                        if (timeNow >= File.GetLastWriteTime(f).AddDays(Convert.ToInt32(this.daysCntBack)))
                         {
-                            string ext = System.IO.Path.GetExtension(f).ToUpper();
-                            if (!(ext.ToUpper() == ".PDF" & d.ToUpper().IndexOf("PODAJNIK") > 0))
+                            if(!testMode)
                             {
-                                this.DeleteFile(f, d);
+                                File.Delete(f);
+                                this.WriteLog($"File: {f} - deleted");
+                            }
+                            else
+                            {
+                                this.WriteLog($"File: {f} - ready to delete");
                             }
                         }
                     }
             
-                    this.DoClean(d);
+                    this.DoClean(d, testMode);
                     if (Directory.EnumerateDirectories(d).Count() + Directory.EnumerateFiles(d).Count() == 0)
                     {
-                        Console.WriteLine($"Dir {d} - deleted");
-                        Directory.Delete(d, false);
-                        File.AppendAllText($"{Program.prgPath}/{saveName}", $"{d}\n");
+                        if (!testMode)
+                        {
+                            Directory.Delete(d, false);
+                            this.WriteLog($"Dir: {d} - deleted");
+                        }
+                        else
+                        {
+                            this.WriteLog($"Dir: {d} - ready to delete");
+                        }
                     }
                 }
             }
             catch (System.Exception excpt)
             {
-                Console.WriteLine($"***{excpt}");
-                File.AppendAllText($"{Program.prgPath}/log.log", $"{Program.timeNow.ToString()}  Exception:\n{excpt.ToString()}\n");
+                this.WriteLog($"*** Exception:\n{excpt.ToString()}");
             }
         }
 
-        private void DeleteFile(string f, string d)
+        public void WriteLog(string logMsg)
         {
-            Console.WriteLine($"File {f} - deleted");
-            File.Delete(f);
-            File.AppendAllText($"{Program.prgPath}/{saveName}", $"{f}\n");
+            if(!Directory.Exists($"{Program.prgPath}/Reports/"))
+            {
+                Directory.CreateDirectory($"{Program.prgPath}/Reports/");
+            }
+            Console.WriteLine(logMsg);
+            File.AppendAllText($"{Program.prgPath}/Reports/{saveFile}", $"{logMsg}\n");
         }
     }
 }
