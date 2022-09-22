@@ -29,6 +29,7 @@ namespace FileCleaner
 
                 foreach (string d in filterdDirs)
                 {
+                    Console.WriteLine(d);
                     var filtredFiles = Directory.EnumerateFiles(d).Where(en => 
                         !delException.Any(en.ToUpper().Contains) 
                         & delExtension.Any(System.IO.Path.GetExtension(en).ToUpper().StartsWith));
