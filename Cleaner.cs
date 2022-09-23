@@ -11,58 +11,62 @@ namespace FileCleaner
         static DateTime timeNow = DateTime.Now;
         string[] delExtension;
         string[] delException;
+        bool testMode;
 
         private static string saveFile = $"{timeNow.Year.ToString()}{timeNow.Month.ToString().PadLeft(2, '0')}{timeNow.Day.ToString().PadLeft(2, '0')}_report.txt";
 
-        public Cleaner(string daysCntBack, string[] delExtension, string[] delException)
+        public Cleaner(string daysCntBack, string[] delExtension, string[] delException, bool testMode)
         {
             this.daysCntBack = daysCntBack;
             this.delExtension = delExtension;
             this.delException = delException;
+            this.testMode = testMode;
         }
 
-        public void DoClean(string searchDir, bool testMode)
+        public void DoClean(string searchDir)
         {
             try
             {
-                var filterdDirs = Directory.EnumerateDirectories(searchDir).Where(en => 
-                    !delException.Any(en.ToUpper().Contains));
+                var filtredFiles = Directory.EnumerateFiles(searchDir).Where(en => 
+                    !delException.Any(en.ToUpper().Contains) 
+                    & delExtension.Any(System.IO.Path.GetExtension(en).ToUpper().StartsWith));
 
-                foreach (string d in filterdDirs)
+                foreach (string f in filtredFiles)
                 {
-                    Console.WriteLine(d);
-                    var filtredFiles = Directory.EnumerateFiles(d).Where(en => 
-                        !delException.Any(en.ToUpper().Contains) 
-                        & delExtension.Any(System.IO.Path.GetExtension(en).ToUpper().StartsWith));
-                    
-                    foreach (string f in filtredFiles)
+                    if (timeNow >= File.GetLastWriteTime(f).AddDays(Convert.ToInt32(this.daysCntBack)))
                     {
-                        if (timeNow >= File.GetLastWriteTime(f).AddDays(Convert.ToInt32(this.daysCntBack)))
+                        if(!testMode)
                         {
-                            if(!testMode)
-                            {
-                                FileSystem.DeleteFile(f, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                                this.WriteLog($"File: {f} - deleted");
-                            }
-                            else
-                            {
-                                this.WriteLog($"File: {f} - ready to delete");
-                            }
-                        }
-                    }
-            
-                    this.DoClean(d, testMode);
-                    if (Directory.EnumerateDirectories(d).Count() + Directory.EnumerateFiles(d).Count() == 0)
-                    {
-                        if (!testMode)
-                        {
-                            FileSystem.DeleteDirectory(d, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                            this.WriteLog($"Dir: {d} - deleted");
+                            FileSystem.DeleteFile(f, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                            this.WriteLog($"File: {f} - deleted");
                         }
                         else
                         {
-                            this.WriteLog($"Dir: {d} - ready to delete");
+                            this.WriteLog($"File: {f} - ready to delete");
                         }
+                    }
+                }
+
+                if (Directory.EnumerateDirectories(searchDir).Count() + Directory.EnumerateFiles(searchDir).Count() == 0)
+                {
+                    if (!testMode)
+                    {
+                        FileSystem.DeleteDirectory(searchDir, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                        this.WriteLog($"Dir: {searchDir} - deleted");
+                    }
+                    else
+                    {
+                        this.WriteLog($"Dir: {searchDir} - ready to delete");
+                    }
+                }
+                else
+                {
+                    var filterdDirs = Directory.EnumerateDirectories(searchDir).Where(en =>
+                        !delException.Any(en.ToUpper().Contains));
+
+                    foreach (string d in filterdDirs)
+                    {
+                        this.DoClean(d);
                     }
                 }
             }

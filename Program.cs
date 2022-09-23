@@ -11,7 +11,7 @@ namespace FileCleaner
             /* Be careful! Your files and directories will be deleted to the Recycle Bin!
             Selecting TESTMODE = TRUE will make the program only display files without deleting them */ 
             
-            bool testMode = false;
+            bool testMode = true;
 
             
             /* delExtensions indicates the extensions of the files to be deleted */
@@ -29,16 +29,16 @@ namespace FileCleaner
             /* The first parameter in string[] setup is the number of days back from today. 
             The other parameters are resources to search for files to delete. */
             
-            // string[] setup = { "90", "d:\\Test1", "d:\\Test2" };
-            string[] setup = File.ReadAllLines($"{prgPath}/Config/Setup.ini");
+            string[] setup = { "90", "d:\\work\\test" };
+            // string[] setup = File.ReadAllLines($"{prgPath}/Config/Setup.ini");
 
 
-            Cleaner cleanAgent = new Cleaner(setup[0], delExtensions, delExceptions);
+            Cleaner cleanAgent = new Cleaner(setup[0], delExtensions, delExceptions, testMode);
             cleanAgent.WriteLog($"Start");
             
             for (int i = 1; i < setup.Length; i++)
             {
-                cleanAgent.DoClean(setup[i], testMode);
+                cleanAgent.DoClean(setup[i]);
             }
 
             cleanAgent.WriteLog($"End");

@@ -10,7 +10,7 @@ arch/
 .source/
 .test/
 .work/
-#.gitignore
+.gitignore
 
 # User-specific files
 *.rsuser
