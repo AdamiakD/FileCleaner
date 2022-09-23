@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.IO;
+using Microsoft.VisualBasic.FileIO;
 
 namespace FileCleaner
 {
@@ -40,7 +41,7 @@ namespace FileCleaner
                         {
                             if(!testMode)
                             {
-                                File.Delete(f);
+                                FileSystem.DeleteFile(f, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                                 this.WriteLog($"File: {f} - deleted");
                             }
                             else
@@ -55,7 +56,7 @@ namespace FileCleaner
                     {
                         if (!testMode)
                         {
-                            Directory.Delete(d, false);
+                            FileSystem.DeleteDirectory(d, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                             this.WriteLog($"Dir: {d} - deleted");
                         }
                         else

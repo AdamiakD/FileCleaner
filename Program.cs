@@ -8,9 +8,10 @@ namespace FileCleaner
 
         static void Main(string[] args)
         {
-            /* Be careful! Your files and directories will be deleted irretrievably without test mode!
+            /* Be careful! Your files and directories will be deleted to the Recycle Bin!
             Selecting TESTMODE = TRUE will make the program only display files without deleting them */ 
-            bool testMode = true;
+            
+            bool testMode = false;
 
             
             /* delExtensions indicates the extensions of the files to be deleted */
