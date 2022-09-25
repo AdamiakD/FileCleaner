@@ -38,11 +38,11 @@ namespace FileCleaner
                         if(!testMode)
                         {
                             FileSystem.DeleteFile(f, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                            this.WriteLog($"File: {f} - deleted");
+                            this.WriteLog($"File: \"{f}\"    deleted");
                         }
                         else
                         {
-                            this.WriteLog($"File: {f} - ready to delete");
+                            this.WriteLog($"File: \"{f}\"    ready to delete");
                         }
                     }
                 }
@@ -52,11 +52,11 @@ namespace FileCleaner
                     if (!testMode)
                     {
                         FileSystem.DeleteDirectory(searchDir, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                        this.WriteLog($"Dir: {searchDir} - deleted");
+                        this.WriteLog($"Dir: \"{searchDir}\" deleted");
                     }
                     else
                     {
-                        this.WriteLog($"Dir: {searchDir} - ready to delete");
+                        this.WriteLog($"Dir: \"{searchDir}\" ready to delete");
                     }
                 }
                 else
@@ -72,7 +72,7 @@ namespace FileCleaner
             }
             catch (System.Exception excpt)
             {
-                this.WriteLog($"*** Exception:\n{excpt.ToString()}");
+                this.WriteLog($"*** Exception:   {excpt.Message}");
             }
         }
 
@@ -83,7 +83,7 @@ namespace FileCleaner
                 Directory.CreateDirectory($"{Program.prgPath}/Reports/");
             }
             Console.WriteLine(logMsg);
-            File.AppendAllText($"{Program.prgPath}/Reports/{saveFile}", $"{logMsg}\n");
+            File.AppendAllText($"{Program.prgPath}/Reports/{saveFile}", $"{timeNow.ToString()}  {logMsg}\n");
         }
     }
 }
