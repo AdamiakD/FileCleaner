@@ -11,7 +11,7 @@ namespace FileCleaner
             /* Be careful! Your files and directories will be deleted to the Recycle Bin!
             Selecting TESTMODE = TRUE will make the program only display files without deleting them */ 
             
-            bool testMode = false;
+            bool testMode = true;
 
             
             /* delExtensions indicates the extensions of the files to be deleted */
