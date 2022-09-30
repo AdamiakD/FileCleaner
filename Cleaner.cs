@@ -49,14 +49,17 @@ namespace FileCleaner
 
                 if (Directory.EnumerateDirectories(searchDir).Count() + Directory.EnumerateFiles(searchDir).Count() == 0)
                 {
-                    if (!testMode)
+                    if (timeNow >= Directory.GetLastWriteTime(searchDir).AddDays(Convert.ToInt32(this.daysCntBack)))
                     {
-                        FileSystem.DeleteDirectory(searchDir, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                        this.WriteLog($"Dir: \"{searchDir}\" deleted");
-                    }
-                    else
-                    {
-                        this.WriteLog($"Dir: \"{searchDir}\" ready to delete");
+                        if (!testMode)
+                        {
+                            FileSystem.DeleteDirectory(searchDir, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                            this.WriteLog($"Dir: \"{searchDir}\" deleted");
+                        }
+                        else
+                        {
+                            this.WriteLog($"Dir: \"{searchDir}\" ready to delete");
+                        }
                     }
                 }
                 else
